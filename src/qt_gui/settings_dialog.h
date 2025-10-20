@@ -46,6 +46,7 @@ private:
     void InitializeEmulatorLanguages();
     void OnLanguageChanged(int index);
     void OnCursorStateChanged(s16 index);
+    void OnUSBDeviceChanged(s16 index);
     void closeEvent(QCloseEvent* event) override;
     void setDefaultValues();
     void VolumeSliderChange(int value);

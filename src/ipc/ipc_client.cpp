@@ -107,6 +107,17 @@ void IpcClient::sendMemoryPatches(std::string modNameStr, std::string offsetStr,
     writeLine(QString::number(maskOffset));
 }
 
+void IpcClient::loadSkylander(std::string file_name, uint8_t slot) {
+    writeLine("LOAD_SKYLANDER");
+    writeLine(QString::fromStdString(file_name));
+    writeLine(QString::number(slot));
+}
+
+void IpcClient::removeSkylander(uint8_t slot) {
+    writeLine("REMOVE_SKYLANDER");
+    writeLine(QString::number(slot));
+}
+
 void IpcClient::onStderr() {
     buffer.append(process->readAllStandardError());
     int idx;

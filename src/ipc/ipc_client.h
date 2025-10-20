@@ -33,6 +33,8 @@ public:
                            bool littleEndian,
                            MemoryPatcher::PatchMask patchMask = MemoryPatcher::PatchMask::None,
                            int maskOffset = 0);
+    void loadSkylander(std::string file_name, uint8_t slot);
+    void removeSkylander(uint8_t slot);
     std::function<void()> gameClosedFunc;
     std::function<void()> startGameFunc;
     std::function<void()> restartEmulatorFunc;
