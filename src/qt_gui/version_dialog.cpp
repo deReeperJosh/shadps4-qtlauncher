@@ -92,7 +92,7 @@ VersionDialog::VersionDialog(std::shared_ptr<gui_settings> gui_settings, QWidget
                                             tr("Executable (*.AppImage)"));
 #elif defined(Q_OS_MACOS)
     exePath = QFileDialog::getOpenFileName(this, tr("Select executable"), QDir::rootPath(),
-                                            tr("Executable (*.*)"));
+                                            tr("Executable (shadps4)"));
 #endif
 
         if (exePath.isEmpty())
