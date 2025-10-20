@@ -25,6 +25,7 @@
 #include "log_presets_dialog.h"
 #include "sdl_event_wrapper.h"
 #include "settings_dialog.h"
+#include "skylander_dialog.h"
 #include "ui_settings_dialog.h"
 // #include "video_core/renderer_vulkan/vk_instance.h"
 // #include "video_core/renderer_vulkan/vk_presenter.h"
@@ -187,6 +188,11 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         qDebug() << "Erro SDL_GetAudioRecordingDevices:" << SDL_GetError();
     }
 
+    ui->usbComboBox->addItem(tr("Real USB Device"));
+    ui->usbComboBox->addItem(tr("Skylander Portal"));
+    ui->usbComboBox->addItem(tr("Infinity Base"));
+    ui->usbComboBox->addItem(tr("Dimensions Toypad"));
+
     InitializeEmulatorLanguages();
     onAudioDeviceChange(true);
     LoadValuesFromConfig();
@@ -347,6 +353,12 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
     {
         connect(ui->hideCursorComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
                 [this](s16 index) { OnCursorStateChanged(index); });
+        connect(ui->usbComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+                [this](s16 index) { OnUSBDeviceChanged(index); });
+        connect(ui->OpenUSBDeviceManagerButton, &QPushButton::clicked, this, [this]() {
+            skylander_dialog* sky_diag = skylander_dialog::get_dlg(this, m_ipc_client);
+            sky_diag->show();
+        });
     }
 
     // PATH TAB
@@ -510,6 +522,9 @@ SettingsDialog::SettingsDialog(std::shared_ptr<gui_settings> gui_settings,
         ui->backgroundControllerCheckBox->installEventFilter(this);
         ui->motionControlsCheckBox->installEventFilter(this);
         ui->micComboBox->installEventFilter(this);
+        ui->usbComboBox->installEventFilter(this);
+        ui->usbManagerGroupBox->installEventFilter(this);
+        ui->OpenUSBDeviceManagerButton->installEventFilter(this);
 
         // Graphics
         ui->graphicsAdapterGroupBox->installEventFilter(this);
@@ -730,6 +745,8 @@ void SettingsDialog::LoadValuesFromConfig() {
         toml::find_or<bool>(data, "Input", "isMotionControlsEnabled", true));
     ui->backgroundControllerCheckBox->setChecked(
         toml::find_or<bool>(data, "Input", "backgroundControllerInput", false));
+    ui->usbComboBox->setCurrentIndex(toml::find_or<int>(data, "Input", "usbDeviceBackend", 0));
+    OnUSBDeviceChanged(toml::find_or<int>(data, "Input", "usbDeviceBackend", 0));
 
     std::string sideTrophy = toml::find_or<std::string>(data, "General", "sideTrophy", "right");
     QString side = QString::fromStdString(sideTrophy);
@@ -859,6 +876,18 @@ void SettingsDialog::OnCursorStateChanged(s16 index) {
     } else {
         if (!ui->idleTimeoutGroupBox->isHidden()) {
             ui->idleTimeoutGroupBox->hide();
+        }
+    }
+}
+
+void SettingsDialog::OnUSBDeviceChanged(s16 index) {
+    if (index == -1)
+        return;
+    if (index == Config::UsbBackendType::SkylandersPortal) {
+        ui->usbManagerGroupBox->show();
+    } else {
+        if (!ui->usbManagerGroupBox->isHidden()) {
+            ui->usbManagerGroupBox->hide();
         }
     }
 }
@@ -1097,6 +1126,7 @@ void SettingsDialog::UpdateSettings(bool is_specific) {
     Config::setCursorState(ui->hideCursorComboBox->currentIndex(), is_specific);
     Config::setCursorHideTimeout(ui->hideCursorComboBox->currentIndex(), is_specific);
     Config::setGpuId(ui->graphicsAdapterBox->currentIndex() - 1, is_specific);
+    Config::setUsbDeviceBackend(ui->usbComboBox->currentIndex(), is_specific);
     Config::setVolumeSlider(ui->horizontalVolumeSlider->value(), is_specific);
     Config::setLanguage(languageIndexes[ui->consoleLanguageComboBox->currentIndex()], is_specific);
     Config::setWindowWidth(ui->widthSpinBox->value(), is_specific);
