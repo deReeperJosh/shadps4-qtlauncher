@@ -33,8 +33,14 @@ public:
                            bool littleEndian,
                            MemoryPatcher::PatchMask patchMask = MemoryPatcher::PatchMask::None,
                            int maskOffset = 0);
-    void loadSkylander(std::string file_name, uint8_t slot);
-    void removeSkylander(uint8_t slot);
+    bool loadSkylander(std::string file_name, uint8_t slot);
+    bool removeSkylander(uint8_t slot);
+    bool loadDimensionFigure(std::string file_name, uint8_t pad, uint8_t index);
+    bool removeDimensionFigure(uint8_t pad, uint8_t index, bool fullRemove);
+    bool moveDimensionFigure(uint8_t new_pad, uint8_t new_index, uint8_t old_pad,
+                             uint8_t old_index);
+    bool tempRemoveDimensionFigure(uint8_t index);
+    bool cancelRemoveDimensionFigure(uint8_t index);
     std::function<void()> gameClosedFunc;
     std::function<void()> startGameFunc;
     std::function<void()> restartEmulatorFunc;

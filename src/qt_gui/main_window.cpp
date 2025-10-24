@@ -21,6 +21,7 @@
 #include "common/scm_rev.h"
 #include "common/versions.h"
 #include "control_settings.h"
+#include "dimensions_dialog.h"
 #include "game_install_dialog.h"
 #include "hotkeys.h"
 #include "input/controller.h"
@@ -143,6 +144,12 @@ void MainWindow::StopGame() {
 void MainWindow::onGameClosed() {
     Config::setGameRunning(false);
     is_paused = false;
+
+    // clear dialogs when game closed
+    skylander_dialog* sky_diag = skylander_dialog::get_dlg(this, m_ipc_client);
+    sky_diag->clear_all();
+    dimensions_dialog* dim_diag = dimensions_dialog::get_dlg(this, m_ipc_client);
+    dim_diag->clear_all();
 }
 
 void MainWindow::RestartGame() {
@@ -816,6 +823,14 @@ void MainWindow::CreateConnects() {
         }
     });
 
+    // Manage Dimensions Toypad
+    connect(ui->dimensionsToypadAction, &QAction::triggered, this, [this]() {
+        if (Config::getUsbDeviceBackend() == Config::UsbBackendType::DimensionsToypad) {
+            dimensions_dialog* dim_dialog = dimensions_dialog::get_dlg(this, m_ipc_client);
+            dim_dialog->show();
+        }
+    });
+
     // Themes
     connect(ui->setThemeDark, &QAction::triggered, &m_window_themes, [this]() {
         m_window_themes.SetWindowTheme(Theme::Dark, ui->mw_searchbar);
@@ -1151,6 +1166,7 @@ void MainWindow::SetUiIcons(bool isWhite) {
     ui->menuGame_List_Mode->setIcon(RecolorIcon(ui->menuGame_List_Mode->icon(), isWhite));
     ui->trophyViewerAct->setIcon(RecolorIcon(ui->trophyViewerAct->icon(), isWhite));
     ui->skylanderPortalAction->setIcon(RecolorIcon(ui->skylanderPortalAction->icon(), isWhite));
+    ui->dimensionsToypadAction->setIcon(RecolorIcon(ui->dimensionsToypadAction->icon(), isWhite));
     ui->configureAct->setIcon(RecolorIcon(ui->configureAct->icon(), isWhite));
     ui->addElfFolderAct->setIcon(RecolorIcon(ui->addElfFolderAct->icon(), isWhite));
 }

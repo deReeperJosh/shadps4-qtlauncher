@@ -107,15 +107,69 @@ void IpcClient::sendMemoryPatches(std::string modNameStr, std::string offsetStr,
     writeLine(QString::number(maskOffset));
 }
 
-void IpcClient::loadSkylander(std::string file_name, uint8_t slot) {
+bool IpcClient::loadSkylander(std::string file_name, uint8_t slot) {
+    if (process == nullptr)
+        return false;
     writeLine("LOAD_SKYLANDER");
     writeLine(QString::fromStdString(file_name));
     writeLine(QString::number(slot));
+    return true;
 }
 
-void IpcClient::removeSkylander(uint8_t slot) {
+bool IpcClient::removeSkylander(uint8_t slot) {
+    if (process == nullptr)
+        return false;
     writeLine("REMOVE_SKYLANDER");
     writeLine(QString::number(slot));
+    return true;
+}
+
+bool IpcClient::loadDimensionFigure(std::string file_name, uint8_t pad, uint8_t index) {
+    if (process == nullptr)
+        return false;
+    writeLine("LOAD_DIMENSIONS");
+    writeLine(QString::fromStdString(file_name));
+    writeLine(QString::number(pad));
+    writeLine(QString::number(index));
+    return true;
+}
+
+bool IpcClient::removeDimensionFigure(uint8_t pad, uint8_t index, bool fullRemove) {
+    if (process == nullptr)
+        return false;
+    writeLine("REMOVE_DIMENSIONS");
+    writeLine(QString::number(pad));
+    writeLine(QString::number(index));
+    writeLine(fullRemove ? "1" : "0");
+    return true;
+}
+
+bool IpcClient::moveDimensionFigure(uint8_t new_pad, uint8_t new_index, uint8_t old_pad,
+                                    uint8_t old_index) {
+    if (process == nullptr)
+        return false;
+    writeLine("MOVE_DIMENSIONS");
+    writeLine(QString::number(new_pad));
+    writeLine(QString::number(new_index));
+    writeLine(QString::number(old_pad));
+    writeLine(QString::number(old_index));
+    return true;
+}
+
+bool IpcClient::tempRemoveDimensionFigure(uint8_t index) {
+    if (process == nullptr)
+        return false;
+    writeLine("TEMP_REMOVE_DIMENSIONS");
+    writeLine(QString::number(index));
+    return true;
+}
+
+bool IpcClient::cancelRemoveDimensionFigure(uint8_t index) {
+    if (process == nullptr)
+        return false;
+    writeLine("CANCEL_REMOVE_DIMENSIONS");
+    writeLine(QString::number(index));
+    return true;
 }
 
 void IpcClient::onStderr() {
